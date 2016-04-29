@@ -1,0 +1,19 @@
+{
+  "name": "dups-tracker",
+  "version": "0.0.1",
+  "description": "Track duplicate files in a directory and its sub directories",
+  "main": "index.js",
+  "keywords": [
+    "file",
+    "duplicates",
+    "tracker"
+  ],
+  "author": "Laurent Prevost <prevole@prevole.ch>",
+  "license": "MIT",
+  "dependencies": {
+    "colors": "^1.1.2",
+    "fs-extra": "^0.26.7",
+    "glob": "^7.0.0",
+    "underscore": "^1.8.3"
+  }
+}
