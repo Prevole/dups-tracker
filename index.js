@@ -1,93 +1,73 @@
 var
-  fs = require('fs-extra'),
-  path = require('path'),
-  _ = require('underscore'),
-  md5 = require('md5-file'),
-  colors = require('colors')
+  directoryIterator = require('./lib/directoryIterator'),
+  walker = require('./lib/walker'),
+  reporters = require('./lib/reporters/reporters'),
+  colors = require('colors'),
+  yargs = require('yargs'),
+  _ = require('underscore')
 ;
 
-if (!process.argv[2]) {
-  console.log('You should specify at least one root folder.'.red);
-  process.exit(-1);
+/**
+ * Define the command line arguments
+ */
+var argv = yargs
+  .usage('Usage: $0 [options] directory [directories]')
+  .demand(1, 'At least one directory must be specified'.red)
+  .boolean('c')
+  .default({
+    c: true
+  })
+  .alias('c', 'console')
+  .describe('c', 'Use the console reporter')
+  .boolean('t')
+  .alias('t', 'html')
+  .describe('t', 'Use the html reporter')
+  .alias('o', 'out')
+  .describe('o', 'HTML output file when -t is used')
+  .requiresArg('o')
+  .implies('t', 'o')
+  .example('$0 -c -t html /tmp/a /tmp/b tmp/c', 'Use console and html reporters to check the duplicates of directories a, b and c in tmp')
+  .help('h')
+  .alias('h', 'help')
+  .wrap(null)
+  .version(function() {
+    return 'v' + require('./package.json').version;
+  })
+  .argv
+;
+
+// reporters
+var reportersToUse = [];
+
+// Check if console reporter is asked
+if (argv.c) {
+  reportersToUse.push({ name: 'console' });
 }
 
-var rootDirectories = {
-  dirs: process.argv.slice(2),
-  current: 0
+// Check if html reporter is asked
+if (argv.t) {
+  reportersToUse.push({ name: 'html', options: { out: argv.o }});
+}
+
+/**
+ * The configuration to run the app
+ *
+ * @type {{directoryIterator: {directories: *, current: number}, reporters: *}}
+ */
+var config = {
+  directoryIterator: directoryIterator(argv._),
+  reporters: reportersToUse
 };
 
-_.extend(rootDirectories, {
-  hasNext: function() {
-    return this.current < this.dirs.length;
-  },
-
-  next: function() {
-    return this.dirs[this.current++];
-  }
-});
-
-var filesByName = {};
-var filesByMd5 = {};
-
-walk();
-
-function walk() {
-  fs.walk(rootDirectories.next())
-    .on('data', function(pathItem) {
-      if (pathItem.stats.isDirectory()) {
-        process.stdout.write('.'.cyan);
-      }
-
-      if (pathItem.stats.isFile()) {
-        pathItem.fileName = pathItem.path.replace(/.*\//, '');
-        pathItem.md5 = md5(pathItem.path);
-
-
-        if (_.isUndefined(filesByName[pathItem.fileName])) {
-          filesByName[pathItem.fileName] = [];
-        }
-
-        filesByName[pathItem.fileName].push(pathItem);
-
-        if (_.isUndefined(filesByMd5[pathItem.md5])) {
-          filesByMd5[pathItem.md5] = [];
-        }
-
-        filesByMd5[pathItem.md5].push(pathItem);
-      }
-    })
-    .on('end', function() {
-      if (rootDirectories.hasNext()) {
-        walk();
-      }
-      else {
-        print();
-      }
+/**
+ * Process the duplication lookup
+ */
+walker(config.directoryIterator).walk()
+  .then(function(results) {
+    // Call each reporter
+    _.each(config.reporters, function(reporter) {
+      reporters[reporter.name](results, _.extend({}, reporter.options));
     });
-}
+  })
+;
 
-function print() {
-  console.log('\n\n');
-  console.log('Comparison by simple names:'.green);
-  _.each(filesByName, function(fileByName, key) {
-    if (fileByName.length > 1) {
-      console.log(('  It seems the file ' + key + ' is duplicated.').yellow);
-      _.each(fileByName, function(file) {
-        console.log('    ' + file.path.blue + (' (md5: ' + file.md5 + ')').magenta);
-      });
-      console.log('');
-    }
-  });
-
-  console.log('');
-  console.log('Comparison by md5:'.green);
-  _.each(filesByMd5, function(fileByMd5, key) {
-    if (fileByMd5.length > 1) {
-      console.log(('  It seems there is a duplicated file for md5: ' + key).yellow);
-      _.each(fileByMd5, function(file) {
-        console.log('    ' + file.path.blue + (' (md5: ' + file.md5 + ')').magenta);
-      });
-      console.log('');
-    }
-  });
-}

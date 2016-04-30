@@ -10,10 +10,16 @@
   ],
   "author": "Laurent Prevost <prevole@prevole.ch>",
   "license": "MIT",
+  "bin": {
+    "dups-tracker": "./bin/dups-tracker"
+  },
   "dependencies": {
+    "bluebird": "^3.3.5",
     "colors": "^1.1.2",
     "fs-extra": "^0.26.7",
-    "glob": "^7.0.0",
-    "underscore": "^1.8.3"
+    "glob": "^7.0.3",
+    "md5-file": "^2.0.4",
+    "underscore": "^1.8.3",
+    "yargs": "^4.6.0"
   }
 }
