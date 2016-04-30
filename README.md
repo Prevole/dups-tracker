@@ -50,6 +50,24 @@ dups-tracker tmp
 dups-tracker tmp/a tmp/b
 ```
 
+Run the following command to show more help
+
+```
+dups-tracker -h
+
+Usage: index.js [options] directory [directories]
+
+Options:
+  -c, --console  Use the console reporter  [boolean] [default: true]
+  -t, --html     Use the html reporter  [boolean]
+  -o, --out      HTML output file when -t is used
+  -h, --help     Show help  [boolean]
+  --version      Show version number  [boolean]
+
+Examples:
+  index.js -c -t html /tmp/a /tmp/b tmp/c  Use console and html reporters to check the duplicates of directories a, b and c in tmp
+```
+
 ## Contributing
 
 * [Fork](https://help.github.com/articles/fork-a-repo)
