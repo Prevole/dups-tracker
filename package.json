@@ -1,6 +1,6 @@
 {
   "name": "dups-tracker",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Track duplicate files in a directory and its sub directories",
   "main": "index.js",
   "keywords": [
@@ -16,9 +16,12 @@
   "dependencies": {
     "bluebird": "^3.3.5",
     "colors": "^1.1.2",
+    "fast-exif": "^0.1.2",
     "fs-extra": "^0.26.7",
     "glob": "^7.0.3",
     "md5-file": "^2.0.4",
+    "minimatch": "^3.0.0",
+    "through2": "^2.0.1",
     "underscore": "^1.8.3",
     "yargs": "^4.6.0"
   }

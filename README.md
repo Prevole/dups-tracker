@@ -53,20 +53,22 @@ dups-tracker tmp/a tmp/b
 Run the following command to show more help
 
 ```
-dups-tracker -h
-
-Usage: index.js [options] directory [directories]
+Usage: dups-tracker [options] directory [directories]
 
 Options:
   -c, --console  Use the console reporter  [boolean] [default: true]
   -t, --html     Use the html reporter  [boolean]
   -o, --out      HTML output file when -t is used
+  -e, --exclude  Exclude files following a minimatch pattern (https://github.com/isaacs/minimatch)
   -h, --help     Show help  [boolean]
   --version      Show version number  [boolean]
 
 Examples:
-  index.js -c -t html /tmp/a /tmp/b tmp/c  Use console and html reporters to check the duplicates of directories a, b and c in tmp
+  dups-tracker -c -t html tmp/a tmp/b tmp/c   Use console and html reporters to check the duplicates of directories a, b and c in tmp
+  dups-tracker -e "**/.DS_Store" tmp/a tmp/b  Use console reporter to check the duplicates of directories a and b in tmp. It will excludes the .DS_Store files in all directories.
 ```
+
+If you want to exclude some file patterns, you can use `-e` option with [minimatch](https://github.com/isaacs/minimatch) patterns. Maybe you will have to put your patterns between quotes.
 
 ## Contributing
 

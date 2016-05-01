@@ -26,7 +26,10 @@ var argv = yargs
   .describe('o', 'HTML output file when -t is used')
   .requiresArg('o')
   .implies('t', 'o')
-  .example('$0 -c -t html /tmp/a /tmp/b tmp/c', 'Use console and html reporters to check the duplicates of directories a, b and c in tmp')
+  .describe('e', 'Exclude files following a minimatch pattern (https://github.com/isaacs/minimatch)')
+  .alias('e', 'exclude')
+  .example('$0 -c -t html tmp/a tmp/b tmp/c', 'Use console and html reporters to check the duplicates of directories a, b and c in tmp')
+  .example('$0 -e "**/.DS_Store" tmp/a tmp/b', 'Use console reporter to check the duplicates of directories a and b in tmp. It will excludes the .DS_Store files in all directories.')
   .help('h')
   .alias('h', 'help')
   .wrap(null)
@@ -60,9 +63,16 @@ var config = {
 };
 
 /**
+ * Add the excludes if necessary
+ */
+if (argv.e) {
+  config.excludes = _.isArray(argv.e) ? argv.e : [ argv.e ];
+}
+
+/**
  * Process the duplication lookup
  */
-walker(config.directoryIterator).walk()
+walker(config).walk()
   .then(function(results) {
     // Call each reporter
     _.each(config.reporters, function(reporter) {
